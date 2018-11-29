@@ -1,0 +1,18 @@
+[Default Applications]
+text/html=chromium.desktop
+x-scheme-handler/http=chromium.desktop
+x-scheme-handler/https=chromium.desktop
+x-scheme-handler/about=chromium.desktop
+x-scheme-handler/unknown=chromium.desktop
+inode/directory=caja.desktop
+image/png=feh.desktop
+x-scheme-handler/mailto=userapp-Thunderbird-B6QOTZ.desktop
+message/rfc822=userapp-Thunderbird-B6QOTZ.desktop
+video/quicktime=mpv.desktop
+video/x-matroska=mpv.desktop
+
+[Added Associations]
+image/png=feh.desktop;
+application/x-wine-extension-ini=sublime_text_3.desktop;
+x-scheme-handler/mailto=userapp-Thunderbird-B6QOTZ.desktop;
+message/rfc822=userapp-Thunderbird-B6QOTZ.desktop;

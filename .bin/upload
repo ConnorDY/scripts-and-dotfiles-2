@@ -1,0 +1,250 @@
+#!/bin/sh
+# Script to upload to various sites (delegating to pomfload)
+# without having to remember their endpoint URLs and such.
+
+# {{{ Various upload sites/configs
+yapc='yet another pomf clone'
+
+yapc() {
+    up="pomfload --upload https://$1/upload.php"
+    desc="$1, $yapc"
+    shift
+    if [ "$#" -ne 0 ]; then
+        desc="$desc ($*)"
+    fi
+}
+
+yauc() {
+    up="pomfload --upload-field file --raw-reply --upload 'https://$1/api.php?d=upload-tool'"
+    desc="$1, temporary file hosting"
+    shift
+    if [ "$#" -ne 0 ]; then
+        desc="$desc ($*)"
+    fi
+}
+
+get_service() {
+    local complain_arg complain
+    complain_arg= complain=true
+
+    while true; do case $1 in
+        --no-complain) complain_arg=--no-complain complain=false; shift;;
+        *) break;;
+    esac; done
+
+    case $1 in
+        uguu) yauc uguu.se 24 hours, 100MB;;
+
+        0x0)
+            up='pomfload --upload-field file --raw-reply --upload https://0x0.st'
+            desc='The Null Pointer, temporary file hosting (30+ days, 256MB)'
+            ;;
+
+        # catgirls)
+        #     up='pomfload --upload http://catgirlsare.sexy/upload.php --download ""'
+        #     desc="catgirlsare.sexy, $yapc (no HTTPS)"
+        #     ;;
+
+        # che)
+        #     up='pomfload --upload http://up.che.moe/upload.php'
+        #     desc="up.che.moe, $yapc (no HTTPS)"
+        #     ;;
+
+        # nya)
+        #     up='pomfload --upload https://nya.is/upload --download ""'
+        #     desc="nya.is, $yapc. Buggy (can't handle files without extensions)"
+        #     ;;
+
+        pomfcat)
+            up='pomfload --upload https://pomf.cat/upload.php --download https://a.pomf.cat/'
+            desc="pomf.cat, $yapc"
+            ;;
+
+        # kyaa)
+        #     up='pomfload --upload https://kyaa.sg/upload.php --download https://r.kyaa.sg/'
+        #     desc="kyaa.sg, $yapc"
+        #     ;;
+
+        safe) yapc safe.moe 300MB;;
+
+        # plebeianparty)
+        #     up='pomfload --upload http://files.plebeianparty.com/upload.php --download http://a.plebeianparty.com/'
+        #     desc="files.plebeianparty.com, $yapc (no HTTPS)"
+        #     ;;
+
+        # glop)
+        #     up='pomfload --upload http://glop.me/upload.php --download http://gateway.glop.me/ipfs/'
+        #     desc="glop.me, $yapc with IPFS backend (no HTTPS)"
+        #     ;;
+
+        owo)
+            need_config $complain_arg owo_key='YOUR OWO KEY' owo_download_url='https://owo.whats-th.is/ (example, change me)' ||
+                { $complain && exit 1; }
+            up="pomfload --upload $(shell_quote_arg "https://api.awau.moe/upload/pomf?key=$owo_key") --download $(shell_quote_arg "$owo_download_url")"
+            desc="owo.whats-th.is, $yapc made in NodeJS <https://github.com/whats-this> (cloudflare & s3 HTTPS; requires registration)"
+            ;;
+
+        mixtape) yapc mixtape.moe;;
+
+        minifiles)
+            up='pomfload --upload https://minifiles.net/upload.php --download https://minifiles.net/files/'
+            desc="minifiles.net, $yapc"
+            ;;
+
+        # nyanimg)
+        #     up='pomfload --redirects --upload-field pictures --upload https://nyanimg.com/upload.php'
+        #     desc="nyanimg, $yapc (images only, cloudflare HTTPS)"
+        #     ;;
+
+        # TODO: Fuwa has an ever so slightly different upload system.
+        # It has a "file" parameter (not "files[]"), and it replies with something like:
+        # {"file":{"url":"<full URL>","success":true,"name":"<name>"}}
+        # fuwa)
+        #     up='fuwaload --upload https://fuwa.se/api/upload --download ""'
+        #     desc="fuwa.se, $yapc (cloudflare HTTPS)"
+        #     ;;
+
+        ratelimited)
+            need_config $complain_arg ratelimited_key='YOUR RATELIMITED KEY' ratelimited_download_url='https://blah.ratelimited.me/ (example, change me)' || { $complain && exit 1; }
+            up="pomfload --upload $(shell_quote_arg "https://api.ratelimited.me/api/upload/pomf?key=$ratelimited_key") --download $(shell_quote_arg "$ratelimited_download_url")"
+            desc="ratelimited.me, $yapc with custom domains (see config file. Cloudflare HTTPS)"
+            ;;
+
+        pyonpyon) yapc pomf.pyonpyon.moe 50MB;;
+        doko) yapc doko.moe 512MB;;
+        vidgame) yapc vidga.me 100MB;;
+
+        # catbox)
+        #     TODO: needs to post reqtype=fileupload & userhash=
+        #     up='pomfload --upload https://catbox.moe/user/api.php --raw-reply --upload-field fileToUpload'
+        #     desc="catbox.moe, $yapc"
+        #     ;;
+
+        asis)
+            up='pomfload --upload https://up.asis.io/upload.php --download https://dl.asis.io/'
+            desc="up.asis.io, $yapc"
+            ;;
+
+        # teknik)
+        #     # TODO: should scrape deleteUrl or something too
+        #     # TODO: needs fileType=<MIME> & fileExt=.<EXTENSION> & keySize=256 & blockSize=128
+        #     up='pomfload --upload https://u.teknik.io/Action/Upload/Upload --upload-field data'
+        #     desc="teknik.io, $yapc"
+        #     ;;
+
+        cockfile) yauc cockfile.com;;
+        lewd) yauc lewd.se;;
+
+        rokket)
+            up='pomfload --upload https://rokket.space/upload'
+            desc="rokket.space, temporary file hosting (48 hours, 150MB)"
+            ;;
+
+        *) return 1;;
+    esac
+}
+# }}}
+
+services='
+    0x0 asis cockfile doko lewd minifiles mixtape owo pomfcat pyonpyon
+    ratelimited rokket safe uguu vidgame
+'
+# BROKEN: fuwa
+# DEAD: che nya plebeianparty glop nyanimg
+# NEEDS ACCOUNT (not sure of the API here): catgirls kyaa pomf.space biyori.moe lithi.io
+# NOT IMPLEMENTED: catbox dbr.ee teknik
+
+
+##### Thus ends the configuration part of the program #####
+
+
+shell_quote_arg() {
+    input=$1
+    output=\'
+    while true; do
+        case $input in
+            (*\'*)
+                output=$output${input%%\'*}\'\\\'\'
+                input=${input#*\'}
+                ;;
+            (*)
+                output=$output$input\'
+                break
+                ;;
+        esac
+    done
+    printf %s\\n "$output"
+}
+
+_already_read_config=false
+need_config() {
+    local wanted_conf failure conf_key conf_example_val complain
+    conf_dir=${XDG_CONFIG_HOME:=${HOME:?}/.config}/pomfload
+    conf_file=$conf_dir/upload
+
+    complain=true
+    while true; do case $1 in
+        --no-complain) complain=false; shift;;
+        *) break;;
+    esac; done
+
+    if ! $_already_read_config && ! [ -f "$conf_file" ]; then
+        if [ -e "$conf_file" ]; then
+            printf 'There is a non-file at "%s". Please remove it or put it somewhere sensible.\n' \
+                "$conf_file" >&2
+            return 1
+        fi
+
+        mkdir -p -- "$conf_dir"
+        printf '# %s\n' \
+            'pomfload uploader config' \
+            'This is where registration details for websites will go.' \
+            > "$conf_file"
+    else
+        $_already_read_config || . "$conf_file"
+        _already_read_config=true
+    fi
+
+    failure=false
+    for wanted_conf do
+        conf_key=${wanted_conf%%=*}
+        conf_example_val=${wanted_conf#*=}
+
+        if eval "[ \"\${$conf_key:-\$conf_example_val}\" = \"\$conf_example_val\" ]"; then
+            failure=true
+            $complain && printf 'Missing a value for config: %s\n' "$conf_key"
+        fi
+    done
+
+    if $failure; then
+        for wanted_conf do
+            conf_key=${wanted_conf%%=*}
+            conf_val=${wanted_conf#*=}
+            eval "\${$conf_key+:} false" ||
+                printf %s=%s\\n "$conf_key" "$(shell_quote_arg "$conf_val")"
+            eval "$conf_key=\$conf_val"
+        done >> "$conf_file"
+        $complain &&
+            printf 'Please edit the config file by running:\n\t%s %s\n' \
+                "$(shell_quote_arg "${EDITOR:-${VISUAL:-vim}}")" \
+                "$(shell_quote_arg "$conf_file")" \
+                >&2
+    fi
+    ! $failure
+}
+
+service=$1
+[ "$#" != 0 ] && shift
+
+if [ "$service" = list ]; then
+    for service in $services; do
+        get_service --no-complain "$service"
+        printf '%-15s%s\n' "$service" "$desc"
+    done
+elif ! get_service "$service"; then
+    printf >&2 'Not a service: "%s"\nTry "%s list"\nInvoke like: "%s SERVICE FILE1 [FILE2 ...]"\n' "$service" "${0##*/}" "${0##*/}"
+    exit 1
+else
+    eval "exec ${up:?}"' "$@"'
+fi
+#vim:fdm=marker

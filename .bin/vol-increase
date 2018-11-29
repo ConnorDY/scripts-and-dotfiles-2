@@ -1,0 +1,6 @@
+#!/bin/sh
+pamixer -i 2
+if pamixer --get-mute | grep -Fq "true" ; then
+	pamixer -t
+fi
+volnoti-show $(pamixer --get-volume)

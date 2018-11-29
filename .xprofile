@@ -1,0 +1,17 @@
+#!/bin/sh
+eval "$(ssh-agent)"
+
+PATH=$PATH:~/.bin
+export PATH
+
+QT_STYLE_OVERRIDE=gtk
+export QT_STYLE_OVERRIDE
+
+xrdb /home/connor/.Xresources &
+xset +fp /usr/share/fonts/local
+
+while :; do compton --backend glx; done &
+/home/connor/.bin/bg-cycler &
+
+tint2 &
+volnoti
