@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openbox_menu xmlns="http://openbox.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://openbox.org/">
+	<menu id="root-menu" label="Openbox Menu">
+		<item label="Terminal">
+			<action name="Execute">
+				<execute>urxvt</execute>
+			</action>
+		</item>
+		<item label="Chromium">
+			<action name="Execute">
+				<execute>chromium</execute>
+			</action>
+		</item>
+		<item label="Caja">
+			<action name="Execute">
+				<execute>caja</execute>
+			</action>
+		</item>
+		<item label="Sublime Text">
+			<action name="Execute">
+				<execute>subl3</execute>
+			</action>
+		</item>
+	</menu>
+</openbox_menu>
