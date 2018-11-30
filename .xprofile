@@ -4,8 +4,8 @@ eval "$(ssh-agent)"
 PATH=$PATH:~/.bin
 export PATH
 
-QT_STYLE_OVERRIDE=gtk
-export QT_STYLE_OVERRIDE
+QT_QPA_PLATFORMTHEME=qt5ct
+export QT_QPA_PLATFORMTHEME
 
 xrdb /home/connor/.Xresources &
 xset +fp /usr/share/fonts/local
