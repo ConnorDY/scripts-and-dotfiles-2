@@ -1,7 +1,7 @@
 #!/bin/sh
 eval "$(ssh-agent)"
 
-PATH=$PATH:~/.bin
+PATH=$PATH:~/.bin:~/.yarn/bin
 export PATH
 
 QT_QPA_PLATFORMTHEME=qt5ct
@@ -10,8 +10,12 @@ export QT_QPA_PLATFORMTHEME
 xrdb /home/connor/.Xresources &
 xset +fp /usr/share/fonts/local
 
+/usr/lib/mate-polkit/polkit-mate-authentication-agent-1 &
+
 while :; do compton --backend glx; done &
 /home/connor/.bin/bg-cycler &
 
 tint2 &
 volnoti
+
+mpd
