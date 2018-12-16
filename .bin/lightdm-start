@@ -1,2 +1,3 @@
 #!/bin/sh
 /home/connor/.screenlayout/default.sh
+xdotool mousemove --screen 0 2880 540
