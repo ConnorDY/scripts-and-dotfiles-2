@@ -18,4 +18,5 @@ while :; do compton --backend glx; done &
 tint2 &
 volnoti
 
+pactl load-module module-loopback latency_msec=1
 mpd
